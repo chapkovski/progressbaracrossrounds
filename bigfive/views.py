@@ -2,33 +2,38 @@ from otree.api import Currency as c, currency_range
 from . import models
 from ._builtin import Page, WaitPage
 from .models import Constants
-from otree.models_concrete import (PageTimeout)
-import time
 
+def progress(p):
+    #lazy way:
+    progressrel = p._index_in_pages/p.player.participant._max_page_index*100
+    # right way:
+    curpageindex = page_sequence.index(type(p))+1
+    progressrel = ((p.round_number-1)*pages_per_round+curpageindex)/tot_pages*100
+    return progressrel
 
 class Demographics(Page):
     form_model = models.Player
     form_fields = [
                    'gender']
 
-    def before_next_page(self):
-        if BigFive.has_timeout():
-            current_time = int(time.time())
-            timeout = 600 if self.player.gender == 'Male' else 300
-            expiration_time = current_time + timeout
-            timeout, created = PageTimeout.objects.get_or_create(
-                participant=self.participant,
-                page_index=self.participant._index_in_pages+1,
-                defaults={'expiration_time': expiration_time})
-
+    def vars_for_template(self):
+        return{
+               'progressrel':progress(self)
+               }
 
 class BigFive(Page):
-    timeout_seconds = 60000
     form_model = models.Player
     form_fields = ['life']
 
+    def vars_for_template(self):
+        return{
+               'progressrel':progress(self)
+               }
 
 page_sequence = [
     Demographics,
     BigFive,
 ]
+#right way
+pages_per_round = len(page_sequence)
+tot_pages = pages_per_round * Constants.num_rounds

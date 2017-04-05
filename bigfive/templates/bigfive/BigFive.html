@@ -2,12 +2,18 @@
 {% load staticfiles otree_tags %}
 
 {% block title %}
-    Survey: Page 2/2
+    Survey: Page 2/2.  (Period {{ subsession.round_number }} of {{ Constants.num_rounds }})
 {% endblock %}
 
 {% block content %}
-
+<div class="progress">
+  <div class="progress-bar" role="progressbar" aria-valuenow="{{progressrel}}"
+  aria-valuemin="0" aria-valuemax="100" style="width:{{progressrel}}%">
+    <span class="sr-only">{{progressrel}}% Complete</span>
+  </div>
+</div>
     {{form}}
+
 <br>
     {% next_button %}
 
